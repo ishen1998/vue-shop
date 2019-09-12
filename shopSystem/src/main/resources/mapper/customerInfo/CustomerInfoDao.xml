@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.module.customerInfo.dao.CustomerInfoDao">
+    <resultMap id="BaseResultMap" type="com.shop.module.customerInfo.entity.CustomerInfo">
+        <id column="c_id" jdbcType="VARCHAR" property="cId"/>
+        <result column="revision" jdbcType="INTEGER" property="revision"/>
+        <result column="create_by" jdbcType="VARCHAR" property="createBy"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_by" jdbcType="VARCHAR" property="updateBy"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="c_login_name" jdbcType="VARCHAR" property="cLoginName"/>
+        <result column="nickname" jdbcType="VARCHAR" property="nickName"/>
+        <result column="mobile" jdbcType="VARCHAR" property="mobile"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="img" jdbcType="VARCHAR" property="img"/>
+        <result column="sex" jdbcType="VARCHAR" property="sex"/>
+        <result column="status" jdbcType="CHAR" property="status"/>
+        <result column="register_time" jdbcType="TIMESTAMP" property="registerTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    c_id, revision, create_by, create_time, update_by, update_time, c_login_name,nickname, mobile,img,sex,
+    `password`, `status`, register_time,email
+  </sql>
+
+    <select id="selectByMobileOrName" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from customer_info
+        where mobile = #{mobile,jdbcType=VARCHAR} or c_login_name = #{cLoginName,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectByLoginName" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from customer_info
+        where c_login_name = #{cLoginName,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from customer_info
+        where c_id = #{cId,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from customer_info
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+        delete from customer_info
+        where c_id = #{cId,jdbcType=VARCHAR}
+    </delete>
+
+    <insert id="insert" keyColumn="c_id" keyProperty="cId"
+            parameterType="com.shop.module.customerInfo.entity.CustomerInfo" useGeneratedKeys="true">
+        insert into customer_info (c_id,revision, create_by, create_time, img,sex,
+        update_by, update_time, c_login_name, nickname ,
+        mobile, `password`, `status`,
+        register_time,email)
+        values (UUID(),#{revision,jdbcType=INTEGER}, #{createBy,jdbcType=VARCHAR}, NOW(),
+        #{img,jdbcType=VARCHAR},#{sex,jdbcType=VARCHAR}, #{updateBy,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP},
+        #{cLoginName,jdbcType=VARCHAR},#{nickName,jdbcType=VARCHAR},
+        #{mobile,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{status,jdbcType=CHAR},
+        #{registerTime,jdbcType=TIMESTAMP},#{email,jdbcType=VARCHAR})
+    </insert>
+
+    <update id="updatePwdByCname" parameterType="java.lang.String">
+        update customer_info set password =#{password,jdbcType=VARCHAR} where c_login_name = #{cLoginName,jdbcType=VARCHAR}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.shop.module.customerInfo.entity.CustomerInfo">
+        update customer_info
+        set
+        img = #{img,jdbcType=VARCHAR},
+        sex = #{sex,jdbcType=VARCHAR},
+        nickname = #{nickName,jdbcType=VARCHAR},
+        mobile = #{mobile,jdbcType=VARCHAR},
+        email=#{email,jdbcType=VARCHAR}
+        where c_id = #{cId,jdbcType=VARCHAR}
+    </update>
+    
+    <update id="updateCustomerStatus">
+        update customer_info set status=#{status} where c_id=#{cId,jdbcType=VARCHAR}
+    </update>
+
+</mapper>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.module.addressManager.dao.CustomerAddressRDAO">
+  <resultMap id="BaseResultMap" type="com.shop.module.addressManager.entity.CustomerAddressR">
+    <id column="customer_address_id" jdbcType="VARCHAR" property="customerAddressId" />
+    <result column="c_id" jdbcType="VARCHAR" property="cId" />
+    <result column="consignee_name" jdbcType="VARCHAR" property="consigneeName" />
+    <result column="consignee_mobile" jdbcType="VARCHAR" property="consigneeMobile" />
+    <result column="consiginee_address" jdbcType="VARCHAR" property="consigineeAddress" />
+    <result column="post_code" jdbcType="VARCHAR" property="postCode" />
+    <result column="address_status" jdbcType="CHAR" property="addressStatus" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    customer_address_id, c_id,consignee_Name, consignee_mobile, consiginee_address, post_code, address_status
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from customer_address_r
+    where customer_address_id = #{customerAddressId,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByCustomerId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from customer_address_r
+    where c_id = #{cId,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from customer_address_r
+    where customer_address_id = #{customerAddressId,jdbcType=VARCHAR}
+  </delete>
+  
+  <insert id="insert" parameterType="com.shop.module.addressManager.entity.CustomerAddressR">
+    insert into customer_address_r (customer_address_id, c_id, consignee_name,consignee_mobile,
+      consiginee_address, post_code, address_status)
+    values (UUID(), #{cId,jdbcType=VARCHAR}, #{consigneeName,jdbcType=VARCHAR},#{consigneeMobile,jdbcType=VARCHAR},
+      #{consigineeAddress,jdbcType=VARCHAR}, #{postCode,jdbcType=VARCHAR}, #{addressStatus,jdbcType=CHAR})
+  </insert>
+
+
+  <update id="updateByPrimaryKey" parameterType="com.shop.module.addressManager.entity.CustomerAddressR">
+    update customer_address_r
+    set consignee_name = #{consigneeName,jdbcType=VARCHAR},
+      consignee_mobile = #{consigneeMobile,jdbcType=VARCHAR},
+      consiginee_address = #{consigineeAddress,jdbcType=VARCHAR},
+      post_code = #{postCode,jdbcType=VARCHAR},
+      address_status = #{addressStatus,jdbcType=CHAR}
+    where customer_address_id = #{customerAddressId,jdbcType=VARCHAR}
+  </update>
+
+  <update id="updateStatusByAddId" parameterType="java.lang.String">
+    update customer_address_r
+    set   address_status = #{addressStatus,jdbcType=CHAR}
+    where customer_address_id = #{customerAddressId,jdbcType=VARCHAR}
+  </update>
+</mapper>

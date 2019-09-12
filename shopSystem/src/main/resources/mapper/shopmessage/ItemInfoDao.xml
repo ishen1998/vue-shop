@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.module.shopmessage.dao.ItemInfoDao">
+  <resultMap id="BaseResultMap" type="com.shop.module.shopmessage.entity.ItemInfo">
+    <id column="item_id" jdbcType="VARCHAR" property="itemId" />
+    <result column="item_name" jdbcType="VARCHAR" property="itemName" />
+    <result column="category_id" jdbcType="VARCHAR" property="categoryId" />
+    <result column="num" jdbcType="INTEGER" property="num" />
+    <result column="price" jdbcType="DECIMAL" property="price" />
+    <result column="locality_id" jdbcType="VARCHAR" property="localityId" />
+    <result column="locality" jdbcType="VARCHAR" property="locality" />
+    <result column="cover_img" jdbcType="VARCHAR" property="coverImg" />
+    <result column="return_img" jdbcType="VARCHAR" property="returnImg" />
+    <result column="item_detail" jdbcType="VARCHAR" property="itemDetail" />
+    <result column="is_show" jdbcType="CHAR" property="isShow" />
+    <result column="is_activity" jdbcType="CHAR" property="isActivity" />
+    <result column="is_publicity" jdbcType="VARCHAR" property="isPublicity" />
+    <result column="parameter_name" jdbcType="VARCHAR" property="parameterName" />
+    <result column="CREATED_BY" jdbcType="VARCHAR" property="createdBy" />
+    <result column="CREATED_TIME" jdbcType="TIMESTAMP" property="createdTime" />
+    <result column="UPDATED_BY" jdbcType="VARCHAR" property="updatedBy" />
+    <result column="UPDATED_TIME" jdbcType="TIMESTAMP" property="updatedTime" />
+    <result column="REVISION" jdbcType="INTEGER" property="revision" />
+    <collection property="priceAndStatuses" ofType="com.shop.module.shopmessage.entity.PriceAndStatus">
+      <result column="activity_price" jdbcType="INTEGER" property="activityPrice" />
+      <result column="activity_status" jdbcType="VARCHAR" property="activityStatus" />
+      <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+      <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+    </collection>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    item_id, item_name, category_id, num, price, locality_id ,locality, cover_img, return_img, item_detail,
+    is_show, is_activity, is_publicity, `parameter_name`, CREATED_BY, CREATED_TIME, UPDATED_BY,
+    UPDATED_TIME, REVISION
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select min(air.activity_price) as activity_price,ai.activity_status,ai.start_time,ai.end_time,i.* from activity_item_r air
+        right join item_info i on air.item_id = i.item_id left join
+        activity_info ai on ai.activity_id=air.activity_id
+        and ai.activity_status = 'Y'
+        where i.item_id = #{itemId,jdbcType=VARCHAR}
+  </select>
+
+  <select id="shopReturnImg" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from item_info
+    where item_id = #{itemId,jdbcType=VARCHAR}
+  </select>
+
+  <insert id="addNewShop" parameterType="com.shop.module.shopmessage.entity.ItemInfo">
+    insert into item_info (item_id, item_name, category_id,
+     num, price, locality,locality_id,
+     cover_img, return_img, item_detail,
+     is_show, is_activity, is_publicity,
+     `parameter_name`, CREATED_BY, CREATED_TIME,
+     UPDATED_BY, UPDATED_TIME, REVISION
+    )
+    values (UUID(), #{itemName,jdbcType=VARCHAR}, #{categoryId,jdbcType=VARCHAR},
+    #{num,jdbcType=INTEGER}, #{price,jdbcType=DECIMAL}, #{locality,jdbcType=VARCHAR},#{localityId,jdbcType=VARCHAR},
+    #{coverImg,jdbcType=VARCHAR}, #{returnImg,jdbcType=VARCHAR}, #{itemDetail,jdbcType=VARCHAR},
+    #{isShow,jdbcType=CHAR}, #{isActivity,jdbcType=CHAR}, #{isPublicity,jdbcType=VARCHAR},
+    #{parameterName,jdbcType=VARCHAR}, #{createdBy,jdbcType=VARCHAR}, #{createdTime,jdbcType=TIMESTAMP},
+    #{updatedBy,jdbcType=VARCHAR}, #{updatedTime,jdbcType=TIMESTAMP}, #{revision,jdbcType=INTEGER}
+    )
+  </insert>
+
+  <select id="findAllShopInfo" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" /> from item_info;
+  </select>
+
+  <update id="updatePublishStatus">
+    update item_info
+    set is_show = #{isShow,jdbcType=CHAR}
+    where item_id = #{itemId,jdbcType=VARCHAR}
+  </update>
+
+  <update id="updateShopStatus">
+    update item_info
+    set is_show = #{isShow,jdbcType=CHAR}
+    where item_id = #{itemId,jdbcType=VARCHAR}
+  </update>
+
+  <select id="getShopName" parameterType="java.lang.String" resultMap="BaseResultMap">
+  select * from item_info where 1=1
+  <if test="itemName != null and itemName != '' ">
+    and item_name like concat('%',#{itemName,jdbcType=VARCHAR},'%')
+  </if>
+</select>
+
+  <select id="getShopLocality" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select * from item_info
+    <where>
+      <if test="itemName != null and itemName != '' ">
+        and item_name like concat('%',#{itemName,jdbcType=VARCHAR},'%')
+      </if>
+        and locality = #{locality,jdbcType=VARCHAR}
+    </where>
+  </select>
+
+  <select id="getOrderStatus" parameterType="java.lang.String" resultType="com.shop.module.shopmessage.entity.ItemStatus">
+    select DISTINCT i.item_id,i.is_show,o.order_id,ri.order_status from item_info i left join order_detail_info o
+    on i.item_id=o.item_id left join order_info ri on o.order_id=ri.order_id and ri.order_status=0
+    where i.item_id = #{itemId,jdbcType=VARCHAR} limit 1
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from item_info
+    where item_info.is_show = 'N'
+    and item_id = #{itemId,jdbcType=VARCHAR}
+  </delete>
+
+  <insert id="insert" parameterType="com.shop.module.shopmessage.entity.ItemInfo">
+    insert into item_info (item_id, item_name, category_id,
+      num, price, locality,locality_id,
+      cover_img, return_img, item_detail, 
+      is_show, is_activity, is_publicity, 
+      `parameter_name`, CREATED_BY, CREATED_TIME, 
+      UPDATED_BY, UPDATED_TIME, REVISION
+      )
+    values (UUID(), #{itemName,jdbcType=VARCHAR}, #{categoryId,jdbcType=VARCHAR},
+      #{num,jdbcType=INTEGER}, #{price,jdbcType=DECIMAL}, #{locality,jdbcType=VARCHAR}, #{localityId,jdbcType=VARCHAR}
+      #{coverImg,jdbcType=VARCHAR}, #{returnImg,jdbcType=VARCHAR}, #{itemDetail,jdbcType=VARCHAR}, 
+      #{isShow,jdbcType=CHAR}, #{isActivity,jdbcType=CHAR}, #{isPublicity,jdbcType=VARCHAR}, 
+      #{parameterName,jdbcType=VARCHAR}, #{createdBy,jdbcType=VARCHAR}, #{createdTime,jdbcType=TIMESTAMP}, 
+      #{updatedBy,jdbcType=VARCHAR}, #{updatedTime,jdbcType=TIMESTAMP}, #{revision,jdbcType=INTEGER}
+      )
+  </insert>
+
+  <insert id="insertSelective" parameterType="com.shop.module.shopmessage.entity.ItemInfo">
+    insert into item_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="itemId != null">
+        item_id,
+      </if>
+      <if test="itemName != null">
+        item_name,
+      </if>
+      <if test="categoryId != null">
+        category_id,
+      </if>
+      <if test="num != null">
+        num,
+      </if>
+      <if test="price != null">
+        price,
+      </if>
+      <if test="localityId != null">
+        locality_id,
+      </if>
+      <if test="locality != null">
+        locality,
+      </if>
+      <if test="coverImg != null">
+        cover_img,
+      </if>
+      <if test="returnImg != null">
+        return_img,
+      </if>
+      <if test="itemDetail != null">
+        item_detail,
+      </if>
+      <if test="isShow != null">
+        is_show,
+      </if>
+      <if test="isActivity != null">
+        is_activity,
+      </if>
+      <if test="isPublicity != null">
+        is_publicity,
+      </if>
+      <if test="parameterName != null">
+        `parameter_name`,
+      </if>
+      <if test="createdBy != null">
+        CREATED_BY,
+      </if>
+      <if test="createdTime != null">
+        CREATED_TIME,
+      </if>
+      <if test="updatedBy != null">
+        UPDATED_BY,
+      </if>
+      <if test="updatedTime != null">
+        UPDATED_TIME,
+      </if>
+      <if test="revision != null">
+        REVISION,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="itemId != null">
+        #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="itemName != null">
+        #{itemName,jdbcType=VARCHAR},
+      </if>
+      <if test="categoryId != null">
+        #{categoryId,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=INTEGER},
+      </if>
+      <if test="price != null">
+        #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="localityId != null">
+        #{locality_id,jdbcType=VARCHAR},
+      </if>
+      <if test="locality != null">
+        #{locality,jdbcType=VARCHAR},
+      </if>
+      <if test="coverImg != null">
+        #{coverImg,jdbcType=VARCHAR},
+      </if>
+      <if test="returnImg != null">
+        #{returnImg,jdbcType=VARCHAR},
+      </if>
+      <if test="itemDetail != null">
+        #{itemDetail,jdbcType=VARCHAR},
+      </if>
+      <if test="isShow != null">
+        #{isShow,jdbcType=CHAR},
+      </if>
+      <if test="isActivity != null">
+        #{isActivity,jdbcType=CHAR},
+      </if>
+      <if test="isPublicity != null">
+        #{isPublicity,jdbcType=VARCHAR},
+      </if>
+      <if test="parameterName != null">
+        #{parameterName,jdbcType=VARCHAR},
+      </if>
+      <if test="createdBy != null">
+        #{createdBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createdTime != null">
+        #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedBy != null">
+        #{updatedBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedTime != null">
+        #{updatedTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="revision != null">
+        #{revision,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.shop.module.shopmessage.entity.ItemInfo">
+    update item_info
+    <set>
+      <if test="itemName != null">
+        item_name = #{itemName,jdbcType=VARCHAR},
+      </if>
+      <if test="categoryId != null">
+        category_id = #{categoryId,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        num = #{num,jdbcType=INTEGER},
+      </if>
+      <if test="price != null">
+        price = #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="localityId != null">
+        locality_id = #{localityId,jdbcType=VARCHAR},
+      </if>
+      <if test="locality != null">
+        locality = #{locality,jdbcType=VARCHAR},
+      </if>
+      <if test="coverImg != null">
+        cover_img = #{coverImg,jdbcType=VARCHAR},
+      </if>
+      <if test="returnImg != null">
+        return_img = #{returnImg,jdbcType=VARCHAR},
+      </if>
+      <if test="itemDetail != null">
+        item_detail = #{itemDetail,jdbcType=VARCHAR},
+      </if>
+      <if test="isShow != null">
+        is_show = #{isShow,jdbcType=CHAR},
+      </if>
+      <if test="isActivity != null">
+        is_activity = #{isActivity,jdbcType=CHAR},
+      </if>
+      <if test="isPublicity != null">
+        is_publicity = #{isPublicity,jdbcType=VARCHAR},
+      </if>
+      <if test="parameterName != null">
+        `parameter_name` = #{parameterName,jdbcType=VARCHAR},
+      </if>
+      <if test="createdBy != null">
+        CREATED_BY = #{createdBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createdTime != null">
+        CREATED_TIME = #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedBy != null">
+        UPDATED_BY = #{updatedBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedTime != null">
+        UPDATED_TIME = #{updatedTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="revision != null">
+        REVISION = #{revision,jdbcType=INTEGER},
+      </if>
+    </set>
+    where item_id = #{itemId,jdbcType=VARCHAR}
+  </update>
+
+  <update id="updateByPrimaryKey" parameterType="com.shop.module.shopmessage.entity.ItemInfo">
+    update item_info
+    set item_name = #{itemName,jdbcType=VARCHAR},
+      category_id = #{categoryId,jdbcType=VARCHAR},
+      num = #{num,jdbcType=INTEGER},
+      price = #{price,jdbcType=DECIMAL},
+      locality_id = #{localityId,jdbcType=VARCHAR},
+      locality = #{locality,jdbcType=VARCHAR},
+      cover_img = #{coverImg,jdbcType=VARCHAR},
+      return_img = #{returnImg,jdbcType=VARCHAR},
+      item_detail = #{itemDetail,jdbcType=VARCHAR},
+      is_show = #{isShow,jdbcType=CHAR},
+      is_activity = #{isActivity,jdbcType=CHAR},
+      is_publicity = #{isPublicity,jdbcType=VARCHAR},
+      `parameter_name` = #{parameterName,jdbcType=VARCHAR},
+      CREATED_BY = #{createdBy,jdbcType=VARCHAR},
+      CREATED_TIME = #{createdTime,jdbcType=TIMESTAMP},
+      UPDATED_BY = #{updatedBy,jdbcType=VARCHAR},
+      UPDATED_TIME = #{updatedTime,jdbcType=TIMESTAMP},
+      REVISION = #{revision,jdbcType=INTEGER}
+    where item_id = #{itemId,jdbcType=VARCHAR}
+  </update>
+
+</mapper>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.module.ticketManager.dao.TicketInfoDAO">
+  <resultMap id="BaseResultMap" type="com.shop.module.ticketManager.entity.TicketInfo">
+    <id column="ticket_id" jdbcType="VARCHAR" property="ticketId" />
+    <result column="REVISION" jdbcType="INTEGER" property="revision" />
+    <result column="CREATED_BY" jdbcType="VARCHAR" property="createdBy" />
+    <result column="CREATED_TIME" jdbcType="TIMESTAMP" property="createdTime" />
+    <result column="UPDATED_BY" jdbcType="VARCHAR" property="updatedBy" />
+    <result column="UPDATED_TIME" jdbcType="TIMESTAMP" property="updatedTime" />
+    <result column="ticket_title" jdbcType="VARCHAR" property="ticketTitle" />
+    <result column="ticket_rule" jdbcType="VARCHAR" property="ticketRule" />
+    <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+    <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+    <result column="preferential_fee" jdbcType="DECIMAL" property="preferentialFee" />
+    <result column="ticket_status" jdbcType="CHAR" property="ticketStatus" />
+    <result column="ticket_num" jdbcType="INTEGER" property="ticketNum" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    ticket_id, REVISION, CREATED_BY, CREATED_TIME, UPDATED_BY, UPDATED_TIME, ticket_title, 
+    ticket_rule, start_time, end_time, preferential_fee, ticket_status, ticket_num
+  </sql>
+  <select id="selectAllTicket" resultMap="BaseResultMap">
+    select * from ticket_info
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from ticket_info
+    where ticket_id = #{ticketId,jdbcType=VARCHAR}
+  </delete>
+  
+  <insert id="insert" parameterType="com.shop.module.ticketManager.entity.TicketInfo">
+    insert into ticket_info (ticket_id, REVISION, CREATED_BY, 
+      CREATED_TIME, UPDATED_BY, UPDATED_TIME, 
+      ticket_title, ticket_rule, start_time, 
+      end_time, preferential_fee, ticket_status, 
+      ticket_num)
+    values (UUID(), #{revision,jdbcType=INTEGER}, #{createdBy,jdbcType=VARCHAR},
+      NOW(), #{updatedBy,jdbcType=VARCHAR}, #{updatedTime,jdbcType=TIMESTAMP},
+      #{ticketTitle,jdbcType=VARCHAR}, #{ticketRule,jdbcType=VARCHAR}, #{startTime,jdbcType=TIMESTAMP}, 
+      #{endTime,jdbcType=TIMESTAMP}, #{preferentialFee,jdbcType=DECIMAL}, #{ticketStatus,jdbcType=CHAR}, 
+      #{ticketNum,jdbcType=INTEGER})
+  </insert>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from ticket_info
+    where ticket_id = #{ticketId,jdbcType=VARCHAR}
+  </select>
+
+  <update id="updateByPrimaryKey" parameterType="com.shop.module.ticketManager.entity.TicketInfo">
+    update ticket_info
+    set  ticket_title = #{ticketTitle,jdbcType=VARCHAR},
+      ticket_rule = #{ticketRule,jdbcType=VARCHAR},
+      start_time = #{startTime,jdbcType=TIMESTAMP},
+      end_time = #{endTime,jdbcType=TIMESTAMP},
+      preferential_fee = #{preferentialFee,jdbcType=DECIMAL},
+      ticket_num = #{ticketNum,jdbcType=INTEGER},
+      ticket_status=#{ticketStatus,jdbcType=INTEGER}
+    where ticket_id = #{ticketId,jdbcType=VARCHAR}
+  </update>
+
+  <update id="updateOnlyTicketStatus" parameterType="java.lang.String">
+    update ticket_info
+    set
+      ticket_status = #{ticketStatus,jdbcType=CHAR}
+    where ticket_id = #{ticketId,jdbcType=VARCHAR}
+  </update>
+
+  <select id="ticketPageHelper" resultType="com.shop.module.ticketManager.entity.TicketInfo">
+        select * from ticket_info
+   </select>
+
+  <select id="countTicket" resultType="java.lang.Integer">
+        select count(*)  FROM ticket_info
+    </select>
+
+  <select id="selectTicketCreateBy" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select * from ticket_info where 1=1
+    <if test="createdBy != null and createdBy != '' ">
+      and created_by like concat('%',#{createdBy,jdbcType=VARCHAR},'%')
+    </if>
+    <if test="ticketStatus != null and ticketStatus != '' ">
+      and ticket_status=#{ticketStatus,jdbcType=VARCHAR}
+    </if>
+  </select>
+
+  <select id="selectTicketCreateByCount" parameterType="java.lang.String" resultType="java.lang.Integer">
+    select count(*) from ticket_info where 1=1
+    <if test="createdBy != null and createdBy != '' ">
+      and created_by like concat('%',#{createdBy,jdbcType=VARCHAR},'%')
+    </if>
+    <if test="ticketStatus != null and ticketStatus != '' ">
+    and ticket_status=#{ticketStatus,jdbcType=VARCHAR}
+    </if>
+  </select>
+</mapper>

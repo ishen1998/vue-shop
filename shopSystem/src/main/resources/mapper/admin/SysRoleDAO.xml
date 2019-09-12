@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.module.admin.dao.SysRoleDAO">
+    <resultMap id="BaseResultMap" type="com.shop.module.admin.entity.role.SysRole">
+        <id column="sys_role_id" jdbcType="VARCHAR" property="sysRoleId"/>
+        <result column="sys_role_name" jdbcType="VARCHAR" property="sysRoleName"/>
+        <result column="sys_role_nickname" jdbcType="VARCHAR" property="sysRoleNickname"/>
+    </resultMap>
+
+    <resultMap id="SysRolePermissionMap" type="com.shop.module.admin.entity.role.SysRolePermission">
+        <id column="sys_role_id" jdbcType="VARCHAR" property="sysRoleId"/>
+        <result column="sys_role_name" jdbcType="VARCHAR" property="sysRoleName"/>
+        <result column="sys_role_nickname" jdbcType="VARCHAR" property="sysRoleNickname"/>
+        <collection property="listPermission" ofType="com.shop.module.admin.entity.PermissionEntity">
+            <id column="id" property="id"/>
+            <result column="name" property="name"/>
+            <result column="value" property="value"/>
+        </collection>
+    </resultMap>
+
+
+    <sql id="Base_Column_List">
+        sys_role_id, sys_role_name, sys_role_nickname
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_role
+        where sys_role_id = #{sysRoleId,jdbcType=VARCHAR}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+        delete from sys_role
+        where sys_role_id = #{sysRoleId,jdbcType=VARCHAR}
+    </delete>
+    <insert id="insert" parameterType="com.shop.module.admin.entity.role.SysRole">
+        insert into sys_role (sys_role_id, sys_role_name, sys_role_nickname
+        )
+        values (#{sysRoleId,jdbcType=VARCHAR}, #{sysRoleName,jdbcType=VARCHAR}, #{sysRoleNickname,jdbcType=VARCHAR}
+        )
+    </insert>
+    <insert id="insertSelective" parameterType="com.shop.module.admin.entity.role.SysRole">
+        insert into sys_role
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sysRoleId != null">
+                sys_role_id,
+            </if>
+            <if test="sysRoleName != null">
+                sys_role_name,
+            </if>
+            <if test="sysRoleNickname != null">
+                sys_role_nickname,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sysRoleId != null">
+                #{sysRoleId,jdbcType=VARCHAR},
+            </if>
+            <if test="sysRoleName != null">
+                #{sysRoleName,jdbcType=VARCHAR},
+            </if>
+            <if test="sysRoleNickname != null">
+                #{sysRoleNickname,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.shop.module.admin.entity.role.SysRole">
+        update sys_role
+        <set>
+            <if test="sysRoleName != null">
+                sys_role_name = #{sysRoleName,jdbcType=VARCHAR},
+            </if>
+            <if test="sysRoleNickname != null">
+                sys_role_nickname = #{sysRoleNickname,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where sys_role_id = #{sysRoleId,jdbcType=VARCHAR}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.shop.module.admin.entity.role.SysRole">
+        update sys_role
+        set sys_role_name = #{sysRoleName,jdbcType=VARCHAR},
+        sys_role_nickname = #{sysRoleNickname,jdbcType=VARCHAR}
+        where sys_role_id = #{sysRoleId,jdbcType=VARCHAR}
+    </update>
+
+    <select id="selectAllRole" resultType="com.shop.module.admin.entity.role.SysRole">
+        select *from sys_role
+    </select>
+    <select id="selectPermission" resultType="com.shop.module.admin.entity.PermissionEntity">
+        select id,name,value from sys_Permission
+    </select>
+    <select id="selectRolePermissionId" resultType="java.lang.Integer">
+        select permission_id FROM sys_role_permission_relation WHERE role_id=#{roleId}
+    </select>
+    <select id="queryRoleData" resultMap="SysRolePermissionMap">
+    SELECT
+        sr.sys_role_id,sys_role_name,sr.sys_role_nickname,
+        sp.id,sp.name,sp.value
+    FROM
+        sys_role sr,
+        sys_role_permission_relation spr,
+        sys_permission sp
+    WHERE
+        sr.sys_role_id = spr.role_id AND
+        spr.role_id = sr.sys_role_id AND
+        sp.id = spr.permission_id
+    </select>
+
+    <delete id="deleteUserRoleByUserId" parameterType="java.lang.String">
+        delete from user_role_relation where user_id = #{userId}
+    </delete>
+
+    <delete id="deleteUserRolePermission" parameterType="java.lang.String">
+        delete from sys_role_permission_relation where role_id = #{roleId}
+    </delete>
+    <delete id="deleteUserRoleRelation">
+        delete from user_role_relation where role_id = #{roleId}
+    </delete>
+
+    <insert id="insertList">
+        INSERT INTO user_role_relation(
+        user_role_relation_id,user_id, role_id
+        )VALUES
+        <foreach collection="roleIds" item="roleId" index="index" separator=",">
+            (
+            UUID(),
+            #{userId},
+            #{roleId}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertRolePermission">
+        INSERT INTO sys_role_permission_relation(
+        id,role_id,permission_id
+        )VALUES
+        <foreach collection="permissionIds" item="permissionId" index="index" separator=",">
+            (
+            UUID(),
+            #{roleId},
+            #{permissionId}
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectRoleUser" resultType="java.lang.String">
+        SELECT user_role_relation.user_id
+        FROM user_role_relation
+        WHERE user_role_relation.role_id = #{roleId,jdbcType=VARCHAR}
+    </select>
+    <select id="selectRoleByName" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_role
+        where sys_role_nickname = #{roleNickname,jdbcType=VARCHAR}
+    </select>
+    <select id="selectRoleRelationUser" resultType="java.lang.String">
+        select user_id from user_role_relation where role_id=#{roleId,jdbcType=VARCHAR}
+    </select>
+</mapper>

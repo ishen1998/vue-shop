@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.module.category.dao.CategoryInfoDao">
+  <resultMap id="BaseResultMap" type="com.shop.module.category.entity.CategoryInfo">
+    <id column="category_id" jdbcType="VARCHAR" property="categoryId" />
+    <result column="revision" jdbcType="INTEGER" property="revision" />
+    <result column="create_by" jdbcType="VARCHAR" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="category_name" jdbcType="VARCHAR" property="categoryName" />
+    <result column="category_status" jdbcType="CHAR" property="categoryStatus" />
+    <result column="category_image" jdbcType="VARCHAR" property="categoryImage" />
+    <result column="list_parent" jdbcType="VARCHAR" property="listParent" />
+  </resultMap>
+
+  <resultMap id="SelectMap" type="com.shop.module.category.entity.CategoryInfo" extends="BaseResultMap">
+    <collection property="itemInfo" ofType="com.shop.module.shopmessage.entity.ItemInfo">
+      <id column="id" property="categoryId"/>
+      <result column="item_id" jdbcType="VARCHAR" property="itemId" />
+      <result column="item_name" jdbcType="VARCHAR" property="itemName" />
+      <result column="num" jdbcType="INTEGER" property="num" />
+      <result column="price" jdbcType="INTEGER" property="price" />
+      <result column="locality" jdbcType="VARCHAR" property="locality" />
+      <result column="cover_img" jdbcType="VARCHAR" property="coverImg" />
+      <result column="return_img" jdbcType="VARCHAR" property="returnImg" />
+      <result column="item_detail" jdbcType="VARCHAR" property="itemDetail" />
+      <result column="is_show" jdbcType="CHAR" property="isShow" />
+      <result column="is_activity" jdbcType="CHAR" property="isActivity" />
+      <result column="is_publicity" jdbcType="VARCHAR" property="isPublicity" />
+      <result column="parameter_name" jdbcType="VARCHAR" property="parameterName" />
+      <result column="CREATED_BY" jdbcType="VARCHAR" property="createdBy" />
+      <result column="CREATED_TIME" jdbcType="TIMESTAMP" property="createdTime" />
+      <result column="UPDATED_BY" jdbcType="VARCHAR" property="updatedBy" />
+      <result column="UPDATED_TIME" jdbcType="TIMESTAMP" property="updatedTime" />
+    </collection>
+  </resultMap>
+  <sql id="Base_Column_List">
+    category_id, revision, create_by, create_time, update_by, update_time, category_name,
+    category_status, category_image, list_parent
+  </sql>
+
+  <select id="selectCount" resultType="java.lang.Integer">
+        select count(*) from category_info
+    </select>
+
+
+  <select id="SelectItemById" resultMap="SelectMap">
+      SELECT c.category_name,c.category_status,c.list_parent,i.* FROM category_info c
+      left JOIN item_info i on
+      c.category_id = i.category_id
+      WHERE c.category_id = #{categoryId,jdbcType=VARCHAR}
+
+  </select>
+  <select id="queryAll" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" /> from category_info where category_id !='262521157352161871' order by create_time desc
+  </select>
+
+  <select id="selectByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" /> from category_info where category_name = #{categoryName,jdbcType=VARCHAR}
+  </select>
+  <select id="selectById" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" /> from category_info where category_id = #{categoryId,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectCategoryName" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" /> from category_info where category_name like #{categoryName,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByParent" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" /> from category_info where list_parent = #{listParent,jdbcType=VARCHAR} and category_status='Y'
+  </select>
+
+  <delete id="deleteById" parameterType="java.lang.String">
+    delete from category_info
+    where category_id = #{categoryId,jdbcType=VARCHAR}
+  </delete>
+
+  <insert id="insert" parameterType="com.shop.module.category.entity.CategoryInfo">
+    insert into category_info (category_id, revision, create_by, 
+      create_time, update_by, update_time, 
+      category_name, category_status,category_image, list_parent)
+    values (#{categoryId,jdbcType=VARCHAR}, #{revision,jdbcType=INTEGER}, #{createBy,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{categoryName,jdbcType=VARCHAR}, #{categoryStatus,jdbcType=CHAR}, #{categoryImage,jdbcType=CHAR},
+      #{listParent,jdbcType=CHAR})
+  </insert>
+
+  <update id="update" parameterType="com.shop.module.category.entity.CategoryInfo">
+    update category_info
+    set
+      update_by = #{updateBy,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      category_name = #{categoryName,jdbcType=VARCHAR},
+      category_status = #{categoryStatus,jdbcType=CHAR},
+      category_image = #{categoryImage,jdbcType=CHAR},
+      list_parent=#{listParent,jdbcType=CHAR}
+    where category_id = #{categoryId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateStatus" parameterType="com.shop.module.category.entity.CategoryInfo">
+    update category_info
+    set
+      update_by = #{updateBy,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      category_status = #{categoryStatus,jdbcType=CHAR}
+    where category_id = #{categoryId,jdbcType=VARCHAR}
+  </update>
+    <select id="selectAllCategory" resultType="java.lang.String">
+        select  distinct list_parent
+        from category_info
+        WHERE category_id !='262521157352161871'
+        order by  list_parent
+    </select>
+
+  <select id="selectSixId" resultType="java.lang.String">
+    select category_id from category_info limit 0,6
+  </select>
+
+  <select id="selectCategoryNameId" resultType="com.alibaba.fastjson.JSONObject">
+        select
+        category_id,
+        category_name
+        from category_info
+        where category_id !='262521157352161871'
+    </select>
+
+</mapper>

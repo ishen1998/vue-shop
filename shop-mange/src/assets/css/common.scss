@@ -1,0 +1,200 @@
+// reset Css
+/*======== 全局 ========*/
+body,
+div,
+dl,
+dt,
+dd,
+ul,
+ol,
+li,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+pre,
+form,
+fieldset,
+input,
+p,
+blockquote,
+th,
+td {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-size: 16px;
+  color: #666;
+  font-family: Verdana, Microsoft YaHei, Simsun;
+  background: #fff;
+  line-height: 24px;
+}
+
+fieldset,
+img {
+  border: 0;
+}
+
+ol,
+ul {
+  list-style: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: 100%;
+}
+
+em {
+  font-style: normal;
+}
+
+input,
+button,
+select,
+textarea {
+  outline: none;
+}
+
+textarea {
+  resize: none;
+}
+
+button {
+  background: transparent;
+  border: none;
+}
+
+//禁用了文本的拖拉，尤其在谷歌下
+p {
+  text-align: justify;
+  text-justify: distribute;
+}
+
+//为了使文本段落左右两边对齐
+/*======== Link ========*/
+a {
+  color: #666;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #f60;
+  text-decoration: none;
+}
+
+em,
+i {
+  font-style: normal;
+}
+
+// common.css
+// root 外边距样式
+.root-container {
+  >div {
+    margin-bottom: 12px;
+    border: 1px solid rgba(224, 224, 224, 1);
+    background-color: white;
+  }
+
+  .el-dialog__wrapper {
+    margin: 0px;
+    border: none;
+  }
+
+  .grap {
+    padding: 0 20px;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-sizing: border-box;
+    -o-box-sizing: border-box;
+  }
+
+  .table-container th {
+    text-align: center;
+    font-size: 16px;
+    color: #101010;
+  }
+}
+
+// 下拉组件菜单样式
+.select-group {
+  display: flex;
+
+  .select-label {
+    margin: 0px 20px;
+    width: 104px;
+    height: 44px;
+  }
+
+  .el-select {
+    width: 100px;
+    height: 48px;
+  }
+}
+
+// 分页定位
+.page-container {
+  float: right;
+  margin-right: 135px;
+}
+
+// 清除浮动
+.clearfix::after {
+  content: "";
+  display: block;
+  visibility: hidden;
+  width: 0px;
+  height: 0px;
+  clear: both;
+}
+
+// 操作面板 按钮 样式
+.opeartion-container span {
+  width: 60px;
+  height: 25px;
+  padding: 0px;
+  line-height: 25px;
+  margin: 0 auto;
+  display: block;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+
+// 缩略图类
+.thumb-container {
+  width: 70%;
+  height: auto;
+}
+
+// 表单文件下载图标样式
+.download-cont {
+  display: inline-block;
+  margin: 0px 20px;
+}
+
+// loading 加载图标
+.el-loading-text {
+  text-align: center;
+}
+
+// 表格警告行
+.el-table .warning-line {
+  background-color: oldlace;
+}
+
+// 头部新增按钮样式
+.add-button {
+  position: absolute;
+  right: 20px;
+  top: 58px;
+}

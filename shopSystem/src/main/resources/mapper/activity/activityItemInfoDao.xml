@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.module.activity.dao.ActivityItemInfoDao">
+    <resultMap id="BaseResultMap" type="com.shop.module.activity.entity.ActivityItem">
+        <id column="activity_item_id" jdbcType="VARCHAR" property="activityItemId"/>
+        <result column="activity_name" jdbcType="VARCHAR" property="activityName"/>
+        <result column="activity_img" jdbcType="VARCHAR" property="activityImg"/>
+        <result column="created_by" jdbcType="VARCHAR" property="createBy"/>
+        <result column="created_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_by" jdbcType="VARCHAR" property="updateBy"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="activity_id" jdbcType="VARCHAR" property="activityId"/>
+        <result column="item_id" jdbcType="VARCHAR" property="itemId"/>
+        <result column="activity_price" jdbcType="DECIMAL" property="activityPrice"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    activity_id, activity_name, activity_img,start_time,end_time,num,item_id
+  </sql>
+    <insert id="insert" parameterType="com.shop.module.activity.entity.ActivityItem">
+    insert into activity_item_r(activity_item_id,activity_name,activity_img,activity_id,item_id,activity_price) values (UUID(),
+    #{activityName},#{activityImg},
+    #{activityId,jdbcType=VARCHAR},#{itemId,jdbcType=VARCHAR},
+    #{activityPrice,jdbcType=DECIMAL})
+    </insert>
+
+
+    <select id="selectByItemId" resultType="java.lang.String">
+        select activity_item_r.activity_name from activity_item_r where item_id=#{itemId}
+    </select>
+
+    <update id="updateActivity" parameterType="com.shop.module.activity.entity.ActivityInfo">
+    update  activity_info ac left join
+         activity_item_r ar on ac.activity_id=ar.activity_id
+          set ac.activity_name=#{activityName} , ac.activity_img=#{activityImg} ,
+           ac.activity_img=#{activityImg},
+           start_time=#{startTime} , end_time=#{endTime},ar.activity_name=#{activityName}
+          , activity_status=#{activityStatus} where ac.activity_id=#{activityId}
+</update>
+
+    <delete id="deleteItem">
+    delete from activity_item_r where item_id = #{itemId} and activity_id=#{activityId}
+</delete>
+    <!--查找活动商品的数量-->
+    <select id="selectNum" resultType="java.lang.Integer">
+        select count(*) from activity_info join activity_item_r on activity_info.activity_id
+        =activity_item_r.activity_id join item_info on activity_item_r.item_id=item_info.item_id
+        where activity_info.activity_id=#{activityId}
+        <if test="itemName!='' and itemName!=null">
+            and item_info.item_name like concat('%',#{itemName,jdbcType=VARCHAR},'%')
+        </if>
+    </select>
+
+    <select id="selectCount" resultType="java.lang.Integer">
+        select count(*)
+        from activity_item_r right join item_info on activity_item_r.item_id=item_info.item_id join category_info on item_info.category_id=category_info.category_id where item_info.is_show="Y"
+        and activity_item_r.activity_id is null
+    </select>
+
+    <select id="selectActivityItem" resultType="java.lang.String">
+        select item_id from activity_item_r where activity_id=#{activityId}
+    </select>
+
+    <delete id="deleteAll">
+        delete from activity_item_r where activity_id=#{activityId}
+    </delete>
+
+
+    <select id="selectExists" resultType="java.lang.String">
+        select activity_status from activity_info join activity_item_r on activity_info.activity_id=activity_item_r.activity_id where item_id=#{itemId}
+    </select>
+
+
+</mapper>

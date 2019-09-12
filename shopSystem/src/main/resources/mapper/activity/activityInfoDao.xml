@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.module.activity.dao.ActivityInfoDao">
+    <resultMap id="BaseResultMap" type="com.shop.module.activity.entity.ActivityInfo">
+        <id column="activity_id" jdbcType="VARCHAR" property="activityId"/>
+        <result column="activity_name" jdbcType="VARCHAR" property="activityName"/>
+        <result column="activity_img" jdbcType="VARCHAR" property="activityImg"/>
+        <result column="start_time" jdbcType="TIMESTAMP" property="startTime"/>
+        <result column="end_time" jdbcType="TIMESTAMP" property="endTime"/>
+        <result column="created_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="num" jdbcType="INTEGER" property="num"/>
+        <result column="created_by" jdbcType="VARCHAR" property="createBy"/>
+        <result column="update_by" jdbcType="VARCHAR" property="updateBy"/>
+        <result column="activity_status" jdbcType="CHAR" property="activityStatus"/>
+        <result column="rule" property="rule"/>
+    </resultMap>
+
+    <resultMap id="jsonMap" type="com.alibaba.fastjson.JSONObject">
+        <id column="activity_id" jdbcType="VARCHAR" property="activityId"/>
+        <result column="activity_name" jdbcType="VARCHAR" property="activityName"/>
+        <result column="activity_img" jdbcType="VARCHAR" property="activityImg"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    activity_id, activity_name, activity_img,start_time,end_time,num,activity_status
+  </sql>
+    <!--    新增活动-->
+    <insert id="insert" parameterType="com.shop.module.activity.entity.ActivityInfo">
+    insert into activity_info(activity_id,activity_name,activity_status,start_time,end_time,activity_img,rule,preference_item_id,preference_id) values (UUID(),
+    #{activityName,jdbcType=VARCHAR},#{activityStatus},
+    #{startTime,jdbcType=TIMESTAMP} ,#{endTime,jdbcType=TIMESTAMP},
+    #{activityImg,jdbcType=VARCHAR},
+    #{rule,jdbcType=VARCHAR},#{preferenceItemId},#{preferenceId})
+</insert>
+    <!--    查询总记录数-->
+    <select id="selectCount" resultType="java.lang.Integer">
+        select
+        count(*)
+        from activity_info where activity_id!="1" and activity_id!="2"
+    </select>
+
+    <select id="selectName" resultType="java.lang.String">
+        select activity_Name from activity_info where activity_id !="1" and activity_status="Y" and activity_status="y" Limit 6
+    </select>
+
+    <select id="selectByName" resultMap="BaseResultMap">
+        select *from activity_info where activity_name=#{activityName}
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from activity_info where activity_id=#{activityId}
+    </select>
+    <!--修改活动状态-->
+    <update id="modifyStatus">
+        update activity_info set activity_status=#{activityStatus} where activity_id=#{activityId}
+    </update>
+    <!--    修改存在活动中商品的数量-->
+    <update id="updateNum">
+        update activity_info
+        set num=#{num} where activity_id=#{activityId}
+    </update>
+    <!--    删除活动-->
+    <delete id="deleteActivity">
+    delete from activity_info where activity_id=#{activityId}
+</delete>
+
+    <sql id="judge">
+        activity_id!="1" and activity_id!="2" and activity_status="Y" and activity_status="y"
+    </sql>
+
+    <select id="selectActivityNotOne" resultType="com.shop.module.activity.entity.ActivityInfo">
+    select ac.activity_id,ac.activity_name,ac.activity_img from activity_info ac where <include refid="judge"/>
+</select>
+
+    <select id="selectActivityByName" resultType="com.shop.module.activity.entity.ActivityInfo">
+     select ac.activity_id,ac.activity_name,ac.activity_img from activity_info ac where activity_name=#{activityName}
+</select>
+
+    <select id="selectReturnImg" resultType="java.lang.String">
+        select activity_img from activity_info where activity_id="1"
+    </select>
+
+    <select id="selectFourImg" resultMap="jsonMap">
+        select activity_img,activity_id,activity_name from activity_info where <include refid="judge"/> limit 12
+    </select>
+
+    <select id="selectStatus" resultType="java.lang.String">
+        select activity_status from activity_info where activity_id=#{activityId}
+    </select>
+
+    <select id="selectTime" resultType="com.shop.module.activity.entity.ActivityInfo">
+        select activity_id,end_time from activity_info where <include refid="judge"/>
+    </select>
+
+    <update id="modifyAllItemStatus">
+        update item_info ii join activity_item_r arr on ii.item_id=arr.item_id join activity_info ai on ai.activity_id=arr.activity_id
+          set is_activity=#{isActivity} where ai.activity_id=#{activityId}
+    </update>
+    <update id="modifyItemStatus">
+        update item_info set is_activity=#{isActivity} where item_id=#{itemId}
+    </update>
+
+</mapper>

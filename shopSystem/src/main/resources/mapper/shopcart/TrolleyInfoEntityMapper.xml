@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.module.shopcart.dao.TrolleyMapper">
+
+
+<!--    <select id="selectTrolleyInfoEntityList" resultType="com.shop.module.shopcart.entity.TrolleyInfoListEntity">-->
+<!--        select-->
+<!--        t.trolley_id,-->
+<!--        t.revision,-->
+<!--        t.created_by,-->
+<!--        t.created_time,-->
+<!--        t.updated_by,-->
+<!--        t.updated_time,-->
+<!--        t.c_id,-->
+<!--        t.c_login_name,-->
+<!--        t.item_id,-->
+<!--        t.item_name,-->
+<!--        t.num,-->
+<!--        i.price,-->
+<!--        i.cover_img,-->
+<!--        i.is_show,-->
+<!--        ar.activity_price-->
+<!--        from-->
+<!--        trolley_info t inner join item_info i on t.item_id=i.item_id left join activity_item_r ar on-->
+<!--        t.item_id=ar.item_id-->
+<!--        where t.c_id=#{cId,jdbcType=VARCHAR}-->
+<!--    </select>-->
+
+
+    <select id="selectTrolleyInfoEntityList" resultType="com.shop.module.shopcart.entity.TrolleyInfoListEntity">
+        select
+        t.trolley_id,
+        t.revision,
+        t.created_by,
+        t.created_time,
+        t.updated_by,
+        t.updated_time,
+        t.c_id,
+        t.c_login_name,
+        t.item_id,
+        t.item_name,
+        t.num,
+        i.price*t.num as price,
+        i.cover_img as item_img,
+        i.is_show,
+        i.is_activity,
+        ar.activity_price*t.num as activity_price
+        from
+        trolley_info t inner join item_info i on t.item_id=i.item_id
+        left join activity_item_r ar on
+        t.item_id=ar.item_id
+        where t.c_id=#{cId,jdbcType=VARCHAR}
+    </select>
+
+
+
+    <select id="selectTrolleyInfoEntity" resultType="com.shop.module.activity.entity.ActivityItem">
+        select *from activity_item_r where activity_item_id=#{itemId}
+    </select>
+
+
+</mapper>

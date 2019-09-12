@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.module.activity.dao.PreferenceInfoDao">
+    <resultMap id="oneToMore" type="com.shop.module.activity.entity.PreferenceInfo">
+        <id column="preference_id" property="preferenceId"/>
+        <result column="preference_type" property="preferenceType" />
+        <collection property="preferenceItems" ofType="com.shop.module.activity.entity.PreferenceItem">
+            <id column="preference_item_id" property="preferenceItemId" />
+            <result column="preference_item_name" property="preferenceItemName"/>
+            <result column="preference_discount" property="preferenceDiscount"/>
+            <result column="preference_id" property="preferenceId"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectInfo" resultMap="oneToMore">
+        select * from preference_info pi inner join preference_item_info pii on pi.preference_id = pii.preference_id
+    </select>
+
+    <select id="selectInfoById" resultType="com.shop.module.activity.entity.TypeAndDis">
+        select pi.preference_type,pii.preference_discount from preference_info pi inner join preference_item_info pii on pi.preference_id = pii.preference_id where preference_item_id=#{preferenceItemId}
+    </select>
+
+</mapper>

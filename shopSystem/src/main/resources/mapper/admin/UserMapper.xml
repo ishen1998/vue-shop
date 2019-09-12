@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.module.admin.dao.UserMapper">
+    <resultMap id="BaseResultMap" type="com.shop.module.admin.entity.user.SysUser">
+        <id column="user_id" jdbcType="CHAR" property="userId"/>
+        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <result column="user_password" jdbcType="VARCHAR" property="userPassword"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_by" jdbcType="VARCHAR" property="createBy"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="update_by" jdbcType="VARCHAR" property="updateBy"/>
+        <result column="phone" jdbcType="CHAR" property="phone"/>
+    </resultMap>
+
+
+    <sql id="Base_Column_List">
+            user_id, user_name, user_password, status, create_time, create_by, update_time, update_by, phone
+    </sql>
+
+    <select id="selectUserList" resultType="com.shop.module.admin.entity.user.SysUser">
+        select <include refid="Base_Column_List"/> from sys_user
+    </select>
+
+    <resultMap id="selectUserInfoListMap" type="com.shop.module.admin.entity.user.SysUserInfoPaging">
+        <id column="user_id" jdbcType="CHAR" property="sysUser.userId"/>
+        <result column="user_name" jdbcType="VARCHAR" property="sysUser.userName"/>
+        <result column="status" jdbcType="VARCHAR" property="sysUser.status"/>
+        <result column="phone" jdbcType="VARCHAR" property="sysUser.phone"/>
+        <collection property="sysRoleList" ofType="com.shop.module.admin.entity.role.SysRole">
+            <id column="sys_role_id" property="sysRoleId"/>
+            <result column="sys_role_name" property="sysRoleName"/>
+            <result column="sys_role_nickname" property="sysRoleNickname"/>
+        </collection>
+    </resultMap>
+
+
+    <resultMap id="UserInfoListMap" type="com.alibaba.fastjson.JSONObject">
+        <id column="user_id" jdbcType="CHAR" property="userId"/>
+        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="sys_role_id" property="sysRoleId"/>
+        <result column="sys_role_name" property="sysRoleName"/>
+        <result column="sys_role_nickname" property="sysRoleNickname"/>
+    </resultMap>
+
+    <select id="selectUserInfoList" resultMap="UserInfoListMap">
+        select s.user_id,
+               s.user_name,
+               s.status,
+               s.phone,
+               sr.sys_role_id,
+               sr.sys_role_name,
+               sr.sys_role_nickname
+        from sys_user s LEFT JOIN user_role_relation u ON
+        s.user_id=u.user_id left join sys_role sr on sr.sys_role_id=u.role_id
+    </select>
+
+    <select id="selectUserData"  parameterType="java.util.List" resultType="com.shop.module.admin.entity.role.SysRolePaging">
+        SELECT
+        su.user_id,
+        r.sys_role_id,r.sys_role_name,r.sys_role_nickname
+        FROM sys_user su JOIN user_role_relation ur ON su.user_id=ur.user_id JOIN sys_role r ON ur.role_id = r.sys_role_id
+		WHERE su.user_id in
+        <foreach collection="list" index="index" item="item"
+                 open="(" separator="," close=")">
+            #{item.userId}
+        </foreach>
+    </select>
+
+
+</mapper>

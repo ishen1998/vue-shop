@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.shop.module.customerInfo.dao.CustomerAnalyticalDao">
+<!--&lt;!&ndash;    <select id="selectCustomerAnalyticalData" parameterType="com.shop.module.customerInfo.entity.AnalyticalDate" resultType="com.alibaba.fastjson.JSONObject">&ndash;&gt;-->
+<!--        select *from customer_info where 1=1-->
+<!--        <if test="beginTime!=null and beginTime!=''">-->
+<!--            <![CDATA[   and UNIX_TIMESTAMP(create_time) >= UNIX_TIMESTAMP(#{beginTime})   ]]>-->
+<!--        </if>-->
+<!--        <if test="endTime!=null and endTime!=''">-->
+<!--            <![CDATA[  and UNIX_TIMESTAMP(create_time) <= UNIX_TIMESTAMP(#{endTime})    ]]>-->
+<!--        </if>-->
+
+
+<!--&lt;!&ndash;    </select>&ndash;&gt;-->
+    <resultMap id="BaseResultMap" type="com.alibaba.fastjson.JSONObject">
+        <result column="customerDate" jdbcType="TIMESTAMP" property="customerDate"/>
+        <result column="customerCount" jdbcType="VARCHAR" property="customerNums"/>
+    </resultMap>
+
+
+
+
+
+
+    <select id="selectCustomerAnalyticalData" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT DATE_FORMAT( c.create_time, "%Y-%m-%d" ) as customerDate , COUNT(*) as customerCount
+        FROM customer_info c
+        where
+        UNIX_TIMESTAMP(c.create_time) >= UNIX_TIMESTAMP(#{beginTime})
+        <![CDATA[ and UNIX_TIMESTAMP(c.create_time) <= UNIX_TIMESTAMP(#{endTime}) ]]>
+        GROUP BY DATE_FORMAT( c.create_time, "%Y-%m-%d" )
+    </select>
+
+    <select id="selectOrderAnalyticalData" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT DATE_FORMAT( c.create_time, "%Y-%m-%d" ) as orderDate , COUNT(*) as orderCount
+        FROM order_info c
+        where
+        UNIX_TIMESTAMP(c.create_time) >= UNIX_TIMESTAMP(#{beginTime})
+        <![CDATA[ and UNIX_TIMESTAMP(c.create_time) <= UNIX_TIMESTAMP(#{endTime}) ]]>
+        GROUP BY DATE_FORMAT( c.create_time, "%Y-%m-%d" )
+    </select>
+
+    <select id="selectCustomerOrder" resultType="com.alibaba.fastjson.JSONObject">
+        select DATE_FORMAT( u.create_time, "%Y-%m-%d" )as date ,COUNT(c.c_id) as user_nums,COUNT(d.order_id) as order_nums
+        FROM
+            (SELECT create_time FROM customer_info UNION SELECT create_time FROM order_info) u
+                LEFT JOIN customer_info c ON u.create_time=c.create_time
+                LEFT JOIN order_info d ON u.create_time=d.create_time
+        where
+        UNIX_TIMESTAMP(c.create_time) >= UNIX_TIMESTAMP(#{beginTime})
+        <![CDATA[ and UNIX_TIMESTAMP(c.create_time) <= UNIX_TIMESTAMP(#{endTime}) ]]>
+        or
+        UNIX_TIMESTAMP(u.create_time) >= UNIX_TIMESTAMP(#{beginTime})
+        <![CDATA[ and UNIX_TIMESTAMP(u.create_time) <= UNIX_TIMESTAMP(#{endTime}) ]]>
+        GROUP BY
+            DATE_FORMAT( u.create_time, "%Y-%m-%d" )
+    </select>
+
+
+
+
+<!--    ,COUNT(ord.order_id) as orderCount-->
+
+<!--    inner join order_info ord on-->
+<!--    UNIX_TIMESTAMP(ord.create_time) >= UNIX_TIMESTAMP(#{beginTime})-->
+<!--    <![CDATA[ and UNIX_TIMESTAMP(ord.create_time) <= UNIX_TIMESTAMP(#{endTime}) ]]>-->
+
+<!--    <select id="selectCustomerAnalyticalData" resultMap="BaseResultMap">-->
+<!--        SELECT DATE_FORMAT( create_time, "%Y-%m-%d" ) as customerDate , COUNT( * ) as customerCount-->
+<!--        FROM customer_info -->
+<!--        where 1=1-->
+<!--        <if test="beginTime!=null and beginTime!=''">-->
+<!--            <![CDATA[   and UNIX_TIMESTAMP(create_time) >= UNIX_TIMESTAMP(#{beginTime})   ]]>-->
+<!--        </if>-->
+<!--        <if test="endTime!=null and endTime!=''">-->
+<!--            <![CDATA[  and UNIX_TIMESTAMP(create_time) <= UNIX_TIMESTAMP(#{endTime})    ]]>-->
+<!--        </if>-->
+<!--        GROUP BY DATE_FORMAT( create_time, "%Y-%m-%d" )-->
+<!--    </select>-->
+
+</mapper>

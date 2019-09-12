@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.module.activity.dao.ActivityItemInfoMapper">
+
+    <resultMap id="itemPaging" type="com.shop.module.shopmessage.entity.ItemInfo">
+        <id column="item_id" property="itemId"/>
+        <result column="item_name" property="itemName"/>
+        <result column="cover_img" property="coverImg"/>
+        <result column="activity_price" property="price"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="num" property="num"/>
+        <result column="locality" property="locality"/>
+        <result column="item_detail" property="itemDetail"/>
+        <result column="is_show" property="isShow"/>
+        <result column="is_activity" property="isActivity"/>
+    </resultMap>
+    <resultMap id="itemPaging2" type="com.shop.module.shopmessage.entity.ItemInfo">
+        <id column="item_id" property="itemId"/>
+        <result column="item_name" property="itemName"/>
+        <result column="cover_img" property="coverImg"/>
+        <result column="price" property="price"/>
+        <result column="list_parent" property="listParent"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="num" property="num"/>
+        <result column="locality" property="locality"/>
+        <result column="item_detail" property="itemDetail"/>
+        <result column="is_show" property="isShow"/>
+        <result column="is_activity" property="isActivity"/>
+    </resultMap>
+
+    <resultMap id="oneToMore" type="com.shop.module.activity.entity.ActivityInfo">
+        <id column="activity_id" property="activityId"/>
+        <result column="activity_name" property="activityName"/>
+        <result column="activity_img" property="activityImg"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="rule" property="rule"/>
+        <result column="preference_item_id" property="preferenceItemId"/>
+        <result column="preference_id" property="preferenceId"/>
+        <collection property="itemInfos" ofType="com.shop.module.shopmessage.entity.ItemInfo">
+            <id column="item_id" property="itemId"/>
+            <result column="item_name" property="itemName"/>
+            <result column="cover_img" property="coverImg"/>
+            <result column="price" property="price"/>
+            <result column="activity_price" property="activityPrice"/>
+            <result column="list_parent" property="listParent"/>
+            <result column="num" property="num"/>
+            <result column="locality" property="locality"/>
+            <result column="item_detail" property="itemDetail"/>
+            <result column="is_show" property="isShow"/>
+            <result column="is_activity" property="isActivity"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectActivityItemIpage" resultMap="itemPaging">
+        select ii.cover_img,ar.activity_price,ii.item_detail,ii.item_name,ii.item_id,ii.is_activity,ii.is_show from activity_info ac left join
+        activity_item_r ar on ac.activity_id=ar.activity_id
+        left join item_info ii on ar.item_id=ii.item_id
+        where ac.activity_id=#{activityId} and ii.is_show="Y"
+        <if test="itemName!='' and itemName!=null">
+            and ii.item_name like concat('%',#{itemName,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="msg!=null and msg!=''">
+            order by activity_price
+        </if>
+        <if test="msg=='desc'">
+            desc
+        </if>
+    </select>
+
+    <select id="selectAllItemIpage" resultMap="itemPaging2">
+        select cover_img,price,item_detail,item_name,item_info.item_id,item_info.category_id,category_info.list_parent,item_info.is_show,item_info.num,item_info.locality,item_info.is_activity,item_info.is_show
+        from activity_item_r right join item_info on activity_item_r.item_id=item_info.item_id join category_info on item_info.category_id=category_info.category_id where item_info.is_show="Y"
+        and activity_item_r.activity_id is null
+        <if test="msg!=null and msg!=''">
+            order by price
+        </if>
+        <if test="msg=='desc'">
+            desc
+        </if>
+
+    </select>
+
+    <select id="selectActivityIpage" resultType="com.shop.module.activity.entity.ActivityInfo">
+        select ai.activity_id,ai.activity_img,ai.activity_name,ai.start_time,ai.end_time,ai.num,ai.activity_status from activity_info ai where ai.activity_id!="1" and ai.activity_id!="2"
+    </select>
+
+    <sql id="selectVague">
+        from activity_info ac where 1=1
+        and ac.activity_name like concat('%',#{activityName,jdbcType=VARCHAR},'%') and ac.activity_name!="全部" and ac.activity_name!="首页活动"
+    </sql>
+
+    <select id="selectByNameVague" resultType="com.shop.module.activity.entity.ActivityInfo">
+        select ac.activity_id,ac.activity_name,ac.activity_img,ac.start_time,ac.end_time,ac.activity_status <include refid="selectVague" />
+    </select>
+    <select id="selectByNameVagueCount" resultType="java.lang.Integer">
+        select count(*) <include refid="selectVague" />
+    </select>
+
+    <sql id="sort">
+        from
+        activity_item_r ar left join item_info ii on ar.item_id=ii.item_id
+        left join category_info ci on ii.category_id=ci.category_id
+        where
+        ar.activity_id=#{activityId}
+        <if test="itemName!='' and itemName!=null">
+            and ii.item_name like concat('%',#{itemName,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="listParent!=null and listParent!=''">
+            and ci.list_parent=#{listParent}
+        </if>
+    </sql>
+
+    <sql id="sortItem">
+        from
+       item_info ii
+        left join category_info ci on ii.category_id=ci.category_id
+        <where>
+            <if test="itemName!='' and itemName!=null">
+                and ii.item_name like concat('%',#{itemName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="listParent!=null and listParent!=''">
+                and ci.list_parent=#{listParent}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectSort" resultMap="itemPaging">
+        select ii.item_id,ii.item_name,ii.cover_img,ar.activity_price,ci.list_parent,ii.item_detail,ii.locality
+        <include refid="sort"/>
+    </select>
+
+    <select id="selectItemSort" resultMap="itemPaging2">
+        select ii.item_id,ii.item_name,ii.cover_img,ii.price,ci.list_parent,ii.item_detail,ii.locality
+        <include refid="sortItem"/>
+    </select>
+
+    <select id="selectSortCount" resultType="java.lang.Integer">
+        select count(*)
+        <include refid="sort"/>
+    </select>
+    <select id="selectItemSortCount" resultType="java.lang.Integer">
+        select count(*)
+        <include refid="sortItem"/>
+    </select>
+
+    <sql id="activityItem">
+        from activity_info ac left join
+         activity_item_r ar on ac.activity_id=ar.activity_id
+         left join item_info on ar.item_id=item_info.item_id
+         left join category_info ci on item_info.category_id=ci.category_id
+        where ac.activity_id=#{activityId} and item_info.is_show="Y"
+    </sql>
+
+    <select id="select" resultMap="oneToMore">
+        select * <include refid="activityItem"/>
+    </select>
+    <select id="selectActivityItemCount" resultType="java.lang.Integer">
+        select count(*) <include refid="activityItem"/>
+    </select>
+
+</mapper>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.module.customerInfo.dao.CustomerPageDao">
+    <resultMap id="BaseResultMap" type="com.shop.module.customerInfo.entity.CustomerInfo">
+        <id column="c_id" jdbcType="VARCHAR" property="cId" />
+        <result column="revision" jdbcType="INTEGER" property="revision" />
+        <result column="create_by" jdbcType="VARCHAR" property="createBy" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+        <result column="c_login_name" jdbcType="VARCHAR" property="cLoginName" />
+        <result column="nickname" jdbcType="VARCHAR" property="nickName" />
+        <result column="mobile" jdbcType="VARCHAR" property="mobile" />
+        <result column="password" jdbcType="VARCHAR" property="password" />
+        <result column="email" jdbcType="VARCHAR" property="email" />
+        <result column="status" jdbcType="CHAR" property="status" />
+        <result column="register_time" jdbcType="TIMESTAMP" property="registerTime" />
+    </resultMap>
+
+    <resultMap id="cMap" type="com.shop.module.customerInfo.entity.CustomerInfoTicket">
+        <id column="c_id" jdbcType="VARCHAR" property="cId" />
+        <result column="revision" jdbcType="INTEGER" property="revision" />
+        <result column="create_by" jdbcType="VARCHAR" property="createBy" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+        <result column="c_login_name" jdbcType="VARCHAR" property="cLoginName" />
+        <result column="nickname" jdbcType="VARCHAR" property="nickName" />
+        <result column="mobile" jdbcType="VARCHAR" property="mobile" />
+        <result column="password" jdbcType="VARCHAR" property="password" />
+        <result column="email" jdbcType="VARCHAR" property="email" />
+        <result column="status" jdbcType="CHAR" property="status" />
+        <result column="register_time" jdbcType="TIMESTAMP" property="registerTime" />
+        <collection property="ticketList" ofType="java.lang.String" column="c_id" select="cT">
+            <result column="ticket_id"/>
+        </collection>
+        <collection property="orderList" ofType="java.lang.String" column="c_id" select="cOrder">
+            <result column="order_id"/>
+        </collection>
+
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    c_id, revision, create_by, create_time, update_by, update_time, c_login_name, nickname,mobile,img,sex,
+    `password`, `status`, register_time,email
+  </sql>
+
+    <sql id="CBase_Column_List">
+    c.c_id, c.revision, c.create_by, c.create_time, c.update_by, c.update_time, c.c_login_name, c.nickname,c.mobile,c.img,c.sex,
+    c.password, c.status, c.register_time,c.email
+   </sql>
+
+    <sql id="OBase_Column_List">
+        oi.order_id,oi.c_id
+    </sql>
+
+    <select id="selectUserTicketList" resultMap="cMap">
+        select
+        <include refid="CBase_Column_List"/>
+        from customer_info c
+    </select>
+
+    <select id="selectByMobile" resultMap="cMap">
+        select
+        <include refid="CBase_Column_List"/>
+        from customer_info c   where c.mobile = #{mobile,jdbcType=VARCHAR}
+    </select>
+
+
+    <select id="cT" resultType="java.lang.String">
+        select t.c_id from ticket_customer_r t where t.c_id=#{cId}
+    </select>
+
+    <select id="cOrder" resultType="java.lang.String">
+        select o.c_id from order_info o where o.c_id=#{cId}
+    </select>
+
+    <select id="selectUserList" resultType="com.shop.module.customerInfo.entity.CustomerInfo">
+        select <include refid="Base_Column_List"/>from customer_info
+    </select>
+
+
+    <select id="countUser" resultType="java.lang.Integer">
+        select count(*)  FROM customer_info
+    </select>
+</mapper>

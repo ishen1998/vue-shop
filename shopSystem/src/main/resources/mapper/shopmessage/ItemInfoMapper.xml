@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.module.shopmessage.dao.ItemInfoMapper">
+    <resultMap id="BaseResultMap" type="com.shop.module.shopmessage.entity.ItemInfo">
+        <id column="item_id" jdbcType="VARCHAR" property="itemId" />
+        <result column="item_name" jdbcType="VARCHAR" property="itemName" />
+        <result column="category_id" jdbcType="VARCHAR" property="categoryId" />
+        <result column="num" jdbcType="INTEGER" property="num" />
+        <result column="price" jdbcType="DECIMAL" property="price" />
+        <result column="locality_id" jdbcType="VARCHAR" property="localityId" />
+        <result column="locality" jdbcType="VARCHAR" property="locality" />
+        <result column="cover_img" jdbcType="VARCHAR" property="coverImg" />
+        <result column="return_img" jdbcType="VARCHAR" property="returnImg" />
+        <result column="item_detail" jdbcType="VARCHAR" property="itemDetail" />
+        <result column="is_show" jdbcType="CHAR" property="isShow" />
+        <result column="is_activity" jdbcType="CHAR" property="isActivity" />
+        <result column="is_publicity" jdbcType="VARCHAR" property="isPublicity" />
+        <result column="parameter_name" jdbcType="VARCHAR" property="parameterName" />
+        <result column="CREATED_BY" jdbcType="VARCHAR" property="createdBy" />
+        <result column="CREATED_TIME" jdbcType="TIMESTAMP" property="createdTime" />
+        <result column="UPDATED_BY" jdbcType="VARCHAR" property="updatedBy" />
+        <result column="UPDATED_TIME" jdbcType="TIMESTAMP" property="updatedTime" />
+        <result column="REVISION" jdbcType="INTEGER" property="revision" />
+    </resultMap>
+
+    <select id="selectItemInfoList" resultType="com.shop.module.shopmessage.entity.ItemInfo">
+        select i.*,air.activity_price from item_info i
+        left join activity_item_r air on
+        i.item_id = air.item_id
+    </select>
+
+    <sql id="Base">
+    i.item_id as itemId, i.item_name as itemName, i.category_id as categoryId, i.num as num, i.price as price ,i.locality_id as localityId,
+    i.locality as locality, i.cover_img as coverImg, i.return_img as returnImg, i.item_detail as itemDetail,
+    i.is_show as isShow, i.is_activity as isActivity, i.is_publicity as isPublicity, c.category_name as categoryName
+    </sql>
+
+    <select id="selectItemInfoShop" parameterType="java.lang.String" resultType="com.alibaba.fastjson.JSONObject">
+        select
+        <include refid="Base" />
+        from item_info i
+        left JOIN category_info c on
+        i.category_id = c.category_id
+        where 1=1
+        <if test="itemName != null and itemName != '' ">
+            and i.item_name like concat('%',#{itemName,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="categoryId != null and categoryId != '' " >
+            and i.category_id = #{categoryId,jdbcType=VARCHAR}
+        </if>
+            ORDER BY i.item_name,i.category_id
+    </select>
+
+    <select id="getShopCategoryName" resultType="com.shop.module.shopmessage.entity.ItemInfo">
+        select * from item_info
+        <where>
+            <if test="itemName != null and itemName != '' ">
+                and item_name like concat('%',#{itemName,jdbcType=VARCHAR},'%')
+            </if>
+                and category_id = #{categoryId,jdbcType=VARCHAR}
+        </where>
+    </select>
+</mapper>

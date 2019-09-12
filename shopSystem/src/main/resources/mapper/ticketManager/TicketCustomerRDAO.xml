@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.module.ticketManager.dao.TicketCustomerRDAO">
+  <resultMap id="BaseResultMap" type="com.shop.module.ticketManager.entity.TicketCustomerR">
+    <id column="ticket_customer_id" jdbcType="VARCHAR" property="ticketCustomerId" />
+    <result column="REVISION" jdbcType="INTEGER" property="revision" />
+    <result column="CREATED_BY" jdbcType="VARCHAR" property="createdBy" />
+    <result column="CREATED_TIME" jdbcType="TIMESTAMP" property="createdTime" />
+    <result column="UPDATED_BY" jdbcType="VARCHAR" property="updatedBy" />
+    <result column="UPDATED_TIME" jdbcType="TIMESTAMP" property="updatedTime" />
+    <result column="c_id" jdbcType="VARCHAR" property="cId" />
+    <result column="c_login_name" jdbcType="VARCHAR" property="cLoginName" />
+    <result column="mobile" jdbcType="VARCHAR" property="mobile" />
+    <result column="ticket_id" jdbcType="VARCHAR" property="ticketId" />
+    <result column="use_status" jdbcType="CHAR" property="useStatus" />
+    <association property="ticketInfo" javaType="com.shop.module.ticketManager.entity.TicketInfo">
+      <id column="ticket_id" jdbcType="VARCHAR" property="ticketId" />
+      <result column="REVISION" jdbcType="INTEGER" property="revision" />
+      <result column="CREATED_BY" jdbcType="VARCHAR" property="createdBy" />
+      <result column="CREATED_TIME" jdbcType="TIMESTAMP" property="createdTime" />
+      <result column="UPDATED_BY" jdbcType="VARCHAR" property="updatedBy" />
+      <result column="UPDATED_TIME" jdbcType="TIMESTAMP" property="updatedTime" />
+      <result column="ticket_title" jdbcType="VARCHAR" property="ticketTitle" />
+      <result column="ticket_rule" jdbcType="VARCHAR" property="ticketRule" />
+      <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+      <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+      <result column="preferential_fee" jdbcType="DECIMAL" property="preferentialFee" />
+      <result column="ticket_status" jdbcType="CHAR" property="ticketStatus" />
+      <result column="ticket_num" jdbcType="INTEGER" property="ticketNum" />
+    </association>
+    <collection property="customerInfo" ofType="com.shop.module.customerInfo.entity.CustomerInfo">
+      <id column="c_id" jdbcType="VARCHAR" property="cId" />
+      <result column="revision" jdbcType="INTEGER" property="revision" />
+      <result column="create_by" jdbcType="VARCHAR" property="createBy" />
+      <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+      <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
+      <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+      <result column="c_login_name" jdbcType="VARCHAR" property="cLoginName" />
+      <result column="nickname" jdbcType="VARCHAR" property="nickName" />
+      <result column="mobile" jdbcType="VARCHAR" property="mobile" />
+      <result column="password" jdbcType="VARCHAR" property="password" />
+      <result column="img" jdbcType="VARCHAR" property="img" />
+      <result column="sex" jdbcType="VARCHAR" property="sex" />
+      <result column="status" jdbcType="CHAR" property="status" />
+      <result column="register_time" jdbcType="TIMESTAMP" property="registerTime" />
+    </collection>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    ticket_customer_id, REVISION, CREATED_BY, CREATED_TIME, UPDATED_BY, UPDATED_TIME, 
+    c_id, c_login_name,nickname, mobile, ticket_id, use_status
+  </sql>
+
+  <select id="selectByMobile" parameterType="java.lang.String" resultMap="BaseResultMap">
+     select
+  tcr.* ,
+  cus.*  ,
+  ticket.*
+  from customer_info cus
+  left join ticket_customer_r tcr
+  on cus.mobile =tcr.mobile
+  left join ticket_info ticket on
+  ticket.ticket_id=tcr.ticket_id
+    where tcr.mobile = #{mobile,jdbcType=VARCHAR}
+</select>
+
+
+  <insert id="insert" keyColumn="ticket_customer_id" keyProperty="ticketCustomerId" parameterType="com.shop.module.ticketManager.entity.TicketCustomerR" useGeneratedKeys="true">
+    insert into ticket_customer_r (REVISION, CREATED_BY, CREATED_TIME,
+      UPDATED_BY, UPDATED_TIME,ticket_customer_id, c_id,
+      c_login_name, mobile, ticket_id,
+      use_status)
+    values (#{revision,jdbcType=INTEGER}, #{createdBy,jdbcType=VARCHAR}, #{createdTime,jdbcType=TIMESTAMP},
+      #{updatedBy,jdbcType=VARCHAR}, #{updatedTime,jdbcType=TIMESTAMP}, UUID(),#{cId,jdbcType=VARCHAR},
+      #{cLoginName,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, #{ticketId,jdbcType=VARCHAR},
+      #{useStatus,jdbcType=CHAR})
+  </insert>
+
+  <update id="updateByPrimaryKey" parameterType="com.shop.module.ticketManager.entity.TicketCustomerR">
+    update ticket_customer_r
+    set REVISION = #{revision,jdbcType=INTEGER},
+      CREATED_BY = #{createdBy,jdbcType=VARCHAR},
+      CREATED_TIME = #{createdTime,jdbcType=TIMESTAMP},
+      UPDATED_BY = #{updatedBy,jdbcType=VARCHAR},
+      UPDATED_TIME = #{updatedTime,jdbcType=TIMESTAMP},
+      c_id = #{cId,jdbcType=VARCHAR},
+      c_login_name = #{cLoginName,jdbcType=VARCHAR},
+      mobile = #{mobile,jdbcType=VARCHAR},
+      ticket_id = #{ticketId,jdbcType=VARCHAR},
+      use_status = #{useStatus,jdbcType=CHAR}
+    where ticket_customer_id = #{ticketCustomerId,jdbcType=VARCHAR}
+  </update>
+  <select id="customerTicketPage" parameterType="java.lang.String" resultMap="BaseResultMap">
+
+      <!--  select * from ticket_customer_r where mobile = #{mobile,jdbcType=VARCHAR} -->
+    select
+    tcr.* ,
+    cus.*  ,
+    ticket.*
+    from customer_info cus
+    left join ticket_customer_r tcr
+    on cus.c_id =tcr.c_id
+    left join ticket_info ticket on
+    ticket.ticket_id=tcr.ticket_id  where  tcr.mobile = #{mobile,jdbcType=VARCHAR}
+   </select>
+
+  <select id="countCustomerTicket" resultType="java.lang.Integer">
+        select count(*)  FROM ticket_customer_r   where mobile = #{mobile,jdbcType=VARCHAR}
+   </select>
+
+  <select id="selectCusTicketByTicket" parameterType="java.lang.String" resultType="com.shop.module.ticketManager.entity.TicketCustomerR">
+        select ticketr.*,ticket.ticket_id from ticket_customer_r  ticketr
+         left join ticket_info  ticket
+        on ticket.ticket_id=ticketr.ticket_id
+         where ticketr.ticket_id = #{ticketId,jdbcType=VARCHAR}
+   </select>
+  
+  <delete id="deleteCustomerTicket" parameterType="java.lang.String">
+        delete from ticket_customer_r
+    where ticket_customer_id = #{ticketCustomerId,jdbcType=VARCHAR}
+   </delete>
+
+    <select id="selectCusTicketById" parameterType="java.lang.String" resultType="com.shop.module.ticketManager.entity.TicketCustomerR">
+        select * from ticket_customer_r
+         where ticket_customer_id = #{ticketCustomerId,jdbcType=VARCHAR}
+   </select>
+
+  <select id="selectByCustomerTicketId" parameterType="java.lang.String" resultType="com.shop.module.ticketManager.entity.TicketCustomerR">
+        select * from ticket_customer_r  where  c_id=#{cId,jdbcType=VARCHAR}  and ticket_id = #{ticketId,jdbcType=VARCHAR}
+   </select>
+
+    <select id="selectAllCustomerTic"  resultMap="BaseResultMap">
+       select
+      tcr.* ,
+      cus.*  ,
+      ticket.*
+      from customer_info cus
+      inner join ticket_customer_r tcr
+      on cus.mobile =tcr.mobile
+      left join ticket_info ticket on
+      ticket.ticket_id=tcr.ticket_id
+  </select>
+
+  <update id="updateTicCusStatus" parameterType="java.lang.String">
+    update ticket_customer_r
+    set  use_status = #{useStatus,jdbcType=CHAR}
+    where ticket_customer_id = #{ticketCustomerId,jdbcType=VARCHAR}
+  </update>
+
+  <select id="selectCountTicket" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select count(*) from ticket_customer_r  where  mobile=#{mobile,jdbcType=VARCHAR}
+   </select>
+</mapper>

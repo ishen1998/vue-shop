@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.module.admin.dao.SysUserDao">
+    <resultMap id="BaseResultMap" type="com.shop.module.admin.entity.user.SysUser">
+    <id column="user_id" jdbcType="CHAR" property="userId"/>
+    <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+    <result column="user_password" jdbcType="VARCHAR" property="userPassword"/>
+    <result column="status" jdbcType="INTEGER" property="status"/>
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    <result column="create_by" jdbcType="VARCHAR" property="createBy"/>
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    <result column="update_by" jdbcType="VARCHAR" property="updateBy"/>
+    <result column="phone" jdbcType="CHAR" property="phone"/>
+</resultMap>
+
+
+    <resultMap id="selectMap" type="com.shop.module.admin.entity.user.SysUserData">
+        <id column="user_id" jdbcType="CHAR" property="userId"/>
+        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <result column="user_password" jdbcType="VARCHAR" property="userPassword"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="status" jdbcType="INTEGER" property="age"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_by" jdbcType="VARCHAR" property="createBy"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="update_by" jdbcType="VARCHAR" property="updateBy"/>
+        <collection property="sysRoleList" ofType="com.shop.module.admin.entity.role.SysRole">
+            <id column="sys_role_id" property="sysRoleId"/>
+            <result column="sys_role_name" property="sysRoleName"/>
+            <result column="sys_role_nickname" property="sysRoleNickname"/>
+        </collection>
+    </resultMap>
+
+
+    <resultMap id="selectSimpleMap" type="com.shop.module.admin.entity.user.SysUserData">
+        <id column="user_id" jdbcType="CHAR" property="userId"/>
+        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <collection property="sysRoleList" ofType="com.shop.module.admin.entity.role.SysRole">
+            <id column="sys_role_id" property="sysRoleId"/>
+            <result column="sys_role_name" property="sysRoleName"/>
+            <result column="sys_role_nickname" property="sysRoleNickname"/>
+        </collection>
+    </resultMap>
+
+
+    <sql id="Base_Column_List">
+        user_id, user_name, user_password, status, create_time, create_by, update_time, update_by, phone
+    </sql>
+
+
+    <select id="selectUserSysRole" parameterType="java.lang.String"
+            resultType="com.shop.module.admin.entity.role.SysRole">
+
+        SELECT
+        r.sys_role_id,sys_role_name,r.sys_role_nickname
+        FROM
+        sys_user u,sys_role r,user_role_relation ur
+        WHERE
+        u.user_id LIKE #{userId,jdbcType=CHAR} AND u.user_id=ur.user_id AND ur.role_id=r.sys_role_id;
+    </select>
+
+
+    <select id="selectUser" parameterType="java.lang.String" resultMap="selectMap">
+        SELECT
+        u.user_id,
+        u.user_name,
+        u.user_password,
+        u.status,
+        u.create_time,
+        u.create_by,
+        u.update_time,
+        u.update_by,
+        u.phone,
+        r.sys_role_id,
+        r.sys_role_name,
+        r.sys_role_nickname
+        FROM
+        sys_user u,sys_role r,user_role_relation ur
+        WHERE
+        u.user_id LIKE #{userId,jdbcType=CHAR} AND u.user_id=ur.user_id AND ur.role_id=r.sys_role_id;
+    </select>
+
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_user
+        where user_id = #{userId,jdbcType=CHAR}
+    </select>
+
+    <select id="selectUserName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_user
+        where user_name = #{userName,jdbcType=CHAR}
+    </select>
+
+    <select id="selectAllUser" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/> from sys_user;
+    </select>
+
+    <select id="selectUserRoleId" resultType="java.lang.Integer">
+        SELECT
+        r.sys_role_id
+        FROM
+        sys_user u,sys_role r,user_role_relation ur
+        WHERE
+        u.user_id LIKE #{userId,jdbcType=CHAR} AND u.user_id=ur.user_id AND ur.role_id=r.sys_role_id;
+    </select>
+    <select id="selectUserPermission" resultType="java.lang.String">
+        SELECT p.`value`
+        FROM
+        sys_permission p,sys_role_permission_relation rp,sys_role r
+        WHERE
+        r.sys_role_id=rp.role_id AND rp.permission_id=p.id AND r.sys_role_id
+        IN
+        (SELECT r.sys_role_id
+        FROM
+        sys_user u,sys_role r,user_role_relation ur
+        WHERE
+        u.user_id =#{userId,jdbcType=CHAR} AND u.user_id=ur.user_id AND ur.role_id=r.sys_role_id);
+
+    </select>
+
+    <select id="selectUserPermissionId" resultType="java.lang.String">
+        SELECT p.id
+        FROM
+        sys_permission p,sys_role_permission_relation rp,sys_role r
+        WHERE
+        r.sys_role_id=rp.role_id AND rp.permission_id=p.id AND r.sys_role_id
+        IN
+        (SELECT r.sys_role_id
+        FROM
+        sys_user u,sys_role r,user_role_relation ur
+        WHERE
+        u.user_id =#{userId,jdbcType=CHAR} AND u.user_id=ur.user_id AND ur.role_id=r.sys_role_id);
+
+    </select>
+    <select id="countSysUser" resultType="java.lang.Long">
+        select count(*) FROM sys_user
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+        delete from sys_user
+        where user_id = #{userId,jdbcType=CHAR}
+    </delete>
+    <insert id="insert" parameterType="com.shop.module.admin.entity.user.SysUser">
+        insert into sys_user (user_id, user_name, user_password,
+        status, create_time, create_by,
+        update_time, update_by,phone)
+        values (#{userId,jdbcType=CHAR}, #{userName,jdbcType=VARCHAR}, #{userPassword,jdbcType=VARCHAR},
+        #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR},
+        #{updateTime,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR},#{phone,jdbcType=CHAR});
+    </insert>
+    <insert id="insertSelective" parameterType="com.shop.module.admin.entity.user.SysUser">
+        insert into sys_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="userName != null">
+                user_name,
+            </if>
+            <if test="userPassword != null">
+                user_password,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="createBy != null">
+                create_by,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="updateBy != null">
+                update_by,
+            </if>
+            <if test="phone != null">
+                phone,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">
+                #{userId,jdbcType=CHAR},
+            </if>
+            <if test="userName != null">
+                #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="userPassword != null">
+                #{userPassword,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createBy != null">
+                #{createBy,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateBy != null">
+                #{updateBy,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null">
+                #{phone,jdbcType=CHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.shop.module.admin.entity.user.SysUser">
+        update sys_user
+        <set>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=VARCHAR},
+            </if>
+            <if test="userName != null and '' != userName">
+                user_name = #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="userPassword != null and '' != userPassword">
+                user_password = #{userPassword,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createBy != null">
+                create_by = #{userId,jdbcType=VARCHAR},
+            </if>
+            <!--      <if test="updateTime != null">-->
+            <!--        update_time = #{updateTime,jdbcType=TIMESTAMP},-->
+            <!--      </if>-->
+            update_time = NOW(),
+            <if test="updateBy != null">
+                update_by = #{userId,jdbcType=VARCHAR},
+            </if>
+            <if test="updateBy != null">
+                user_name = #{userName,jdbcType=CHAR},
+            </if>
+            <if test="phone != null">
+                phone = #{phone,jdbcType=CHAR},
+            </if>
+        </set>
+        where user_id = #{userId,jdbcType=CHAR}
+    </update>
+
+    <update id="updateByPhoneKeySelective" parameterType="com.shop.module.admin.entity.user.SysUser">
+        update sys_user
+        <set>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=VARCHAR},
+            </if>
+            <if test="userName != null and '' != userName">
+                user_name = #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="userPassword != null and '' != userPassword">
+                user_password = #{userPassword,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createBy != null">
+                create_by = #{userId,jdbcType=VARCHAR},
+            </if>
+            <!--      <if test="updateTime != null">-->
+            <!--        update_time = #{updateTime,jdbcType=TIMESTAMP},-->
+            <!--      </if>-->
+            update_time = NOW(),
+            <if test="updateBy != null">
+                update_by = #{userId,jdbcType=VARCHAR},
+            </if>
+            <if test="updateBy != null">
+                user_name = #{userName,jdbcType=CHAR},
+            </if>
+            <if test="phone != null">
+                phone = #{phone,jdbcType=CHAR},
+            </if>
+        </set>
+        where phone = #{phone,jdbcType=CHAR}
+    </update>
+
+
+
+
+    <update id="updateByPrimaryKey" parameterType="com.shop.module.admin.entity.user.SysUser">
+        update sys_user
+        set user_name = #{userName,jdbcType=VARCHAR},
+        user_password = #{userPassword,jdbcType=VARCHAR},
+        status = #{status,jdbcType=VARCHAR},
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+        create_by = #{createBy,jdbcType=VARCHAR},
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+        update_by = #{updateBy,jdbcType=VARCHAR},
+        phone = #{phone,jdbcType=CHAR}
+        where user_id = #{userId,jdbcType=CHAR}
+    </update>
+    <select id="selectPhone" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_user WHERE sys_user.phone = #{phone}
+    </select>
+    <select id="checkUserName" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_user WHERE sys_user.user_name = #{userName}
+    </select>
+    <select id="selectUserNamePhone" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_user WHERE sys_user.user_name = #{userName} or
+                            sys_user.user_name = #{phone,jdbcType=VARCHAR}
+    </select>
+</mapper>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.shop.module.admin.dao.UserActivationMapper">
+    <select id="selectActivationCode" resultType="com.shop.module.admin.entity.ActivationCode">
+        select *from activation_code where id=#{id,jdbcType=VARCHAR}
+    </select>
+    <update id="updateActivationCode">
+        update activation_code set activation_by=#{activationBy,jdbcType=VARCHAR},
+        activation_time=#{activationTime,jdbcType=TIMESTAMP},
+        status=#{status,jdbcType=VARCHAR} where id=#{id,jdbcType=VARCHAR}
+    </update>
+</mapper>

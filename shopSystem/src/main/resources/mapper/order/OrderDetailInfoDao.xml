@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.module.order.dao.OrderDetailInfoDao">
+    <resultMap id="BaseResultMap" type="com.shop.module.order.entity.OrderDetailInfo">
+        <id column="order_detail_id" jdbcType="VARCHAR" property="orderDetailId"/>
+        <result column="revision" jdbcType="INTEGER" property="revision"/>
+        <result column="created_by" jdbcType="VARCHAR" property="createdBy"/>
+        <result column="created_time" jdbcType="TIMESTAMP" property="createdTime"/>
+        <result column="updated_by" jdbcType="VARCHAR" property="updatedBy"/>
+        <result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime"/>
+        <result column="order_id" jdbcType="VARCHAR" property="orderId"/>
+        <result column="order_no" jdbcType="VARCHAR" property="orderNo"/>
+        <result column="item_id" jdbcType="VARCHAR" property="itemId"/>
+        <result column="item_name" jdbcType="VARCHAR" property="itemName"/>
+        <result column="item_img" jdbcType="VARCHAR" property="itemImg"/>
+        <result column="item_status" jdbcType="CHAR" property="itemStatus"/>
+        <result column="num" jdbcType="INTEGER" property="itemNum"/>
+        <result column="price" jdbcType="DECIMAL" property="itemPrice"/>
+        <result column="price_total" jdbcType="DECIMAL" property="priceTotal"/>
+        <result column="c_id" jdbcType="VARCHAR" property="cId"/>
+        <result column="c_login_name" jdbcType="VARCHAR" property="cLoginName"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        odi.order_detail_id, odi.revision, odi.created_by, odi.created_time, odi.updated_by, odi.updated_time, odi.order_id,
+    odi.order_no, odi.item_id, odi.item_name, odi.item_img, odi.item_status, odi.num, odi.price, odi.price_total, odi.c_id,
+    odi.c_login_name
+    </sql>
+    <!--根据订单ID查询商品-->
+    <select id="queryOrderDetail" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        FROM order_info oi
+                 JOIN order_detail_info odi
+                      ON oi.order_id = odi.order_id
+                          AND oi.order_no = odi.order_no
+        WHERE oi.order_id = #{orderId,jdbcType=VARCHAR}
+    </select>
+
+    <!--查询所有商品信息-->
+    <select id="queryOrderDetailAll" resultType="com.shop.module.order.entity.OrderDetailInfo">
+        select <include refid="Base_Column_List"/>
+        from order_detail_info odi
+        order by created_time desc
+    </select>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_detail_info odi
+        where order_detail_id = #{orderDetailId,jdbcType=VARCHAR}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+        delete
+        from order_detail_info
+        where order_detail_id = #{orderDetailId,jdbcType=VARCHAR}
+    </delete>
+
+    <!--  插入多条订单详情信息-->
+    <insert id="insertOrderList">
+        insert into order_detail_info ( order_detail_id, revision, created_by,
+        created_time, updated_by, updated_time,
+        order_id, order_no, item_id,
+        item_name, item_img, item_status, num, price,
+        price_total, c_id,
+        c_login_name )
+        values
+        <foreach collection="list" item="item" index="index" separator="," >
+            (
+            #{item.orderDetailId},
+            #{item.revision},
+            #{item.createdBy},
+            #{item.createdTime},
+            #{item.updatedBy},
+            #{item.updatedTime},
+            #{item.orderId},
+            #{item.orderNo},
+            #{item.itemId},
+            #{item.itemName},
+            #{item.itemImg},
+            #{item.itemStatus},
+            #{item.itemNum},
+            #{item.itemPrice},
+            #{item.priceTotal},
+            #{item.cId},
+            #{item.cLoginName}
+            )
+        </foreach>
+    </insert>
+
+    <!--根据商品ID修改商品状态-->
+    <update id="updateByItemId">
+        update order_detail_info odi
+        set odi.item_status = #{itemStatus,jdbcType=CHAR}
+        where odi.item_id = #{itemId,jdbcType=VARCHAR}
+    </update>
+
+    <insert id="insert" parameterType="com.shop.module.order.entity.OrderDetailInfo">
+        insert into order_detail_info (order_detail_id, revision, created_by,
+                                       created_time, updated_by, updated_time,
+                                       order_id, order_no, item_id,
+                                       item_name, item_img, item_status, num, price,
+                                       price_total, c_id,
+                                       c_login_name)
+        values (#{orderDetailId,jdbcType=VARCHAR}, #{revision,jdbcType=INTEGER}, #{createdBy,jdbcType=VARCHAR},
+                #{createdTime,jdbcType=TIMESTAMP}, #{updatedBy,jdbcType=VARCHAR}, #{updatedTime,jdbcType=TIMESTAMP},
+                #{orderId,jdbcType=VARCHAR}, #{orderNo,jdbcType=VARCHAR}, #{itemId,jdbcType=VARCHAR},
+                #{itemName,jdbcType=VARCHAR}, #{itemImg,jdbcType=VARCHAR}, #{itemStatus,jdbcType=CHAR}, #{itemNum,jdbcType=INTEGER},
+                #{itemPrice,jdbcType=DECIMAL},
+                #{priceTotal,jdbcType=DECIMAL}, #{cId,jdbcType=VARCHAR},
+                #{cLoginName,jdbcType=VARCHAR})
+    </insert>
+
+    <insert id="insertSelective" parameterType="com.shop.module.order.entity.OrderDetailInfo">
+        insert into order_detail_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderDetailId != null">
+                order_detail_id,
+            </if>
+            <if test="revision != null">
+                revision,
+            </if>
+            <if test="createdBy != null">
+                created_by,
+            </if>
+            <if test="createdTime != null">
+                created_time,
+            </if>
+            <if test="updatedBy != null">
+                updated_by,
+            </if>
+            <if test="updatedTime != null">
+                updated_time,
+            </if>
+            <if test="orderId != null">
+                order_id,
+            </if>
+            <if test="orderNo != null">
+                order_no,
+            </if>
+            <if test="itemId != null">
+                item_id,
+            </if>
+            <if test="itemName != null">
+                item_name,
+            </if>
+            <if test="itemImg != null">
+                item_img,
+            </if>
+            <if test="itemStatus != null">
+                item_status,
+            </if>
+            <if test="itemNum != null">
+                num,
+            </if>
+            <if test="itemPrice != null">
+                price,
+            </if>
+            <if test="priceTotal != null">
+                price_total,
+            </if>
+            <if test="cId != null">
+                c_id,
+            </if>
+            <if test="cLoginName != null">
+                c_login_name,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderDetailId != null">
+                #{orderDetailId,jdbcType=VARCHAR},
+            </if>
+            <if test="revision != null">
+                #{revision,jdbcType=INTEGER},
+            </if>
+            <if test="createdBy != null">
+                #{createdBy,jdbcType=VARCHAR},
+            </if>
+            <if test="createdTime != null">
+                #{createdTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updatedBy != null">
+                #{updatedBy,jdbcType=VARCHAR},
+            </if>
+            <if test="updatedTime != null">
+                #{updatedTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="orderId != null">
+                #{orderId,jdbcType=VARCHAR},
+            </if>
+            <if test="orderNo != null">
+                #{orderNo,jdbcType=VARCHAR},
+            </if>
+            <if test="itemId != null">
+                #{itemId,jdbcType=VARCHAR},
+            </if>
+            <if test="itemName != null">
+                #{itemName,jdbcType=VARCHAR},
+            </if>
+            <if test="itemImg != null">
+                #{itemImg,jdbcType=VARCHAR},
+            </if>
+            <if test="itemStatus != null">
+                #{itemStatus,jdbcType=CHAR},
+            </if>
+            <if test="itemNum != null">
+                #{itemNum,jdbcType=INTEGER},
+            </if>
+            <if test="itemPrice != null">
+                #{itemPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="priceTotal != null">
+                #{priceTotal,jdbcType=DECIMAL},
+            </if>
+            <if test="cId != null">
+                #{cId,jdbcType=VARCHAR},
+            </if>
+            <if test="cLoginName != null">
+                #{cLoginName,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.shop.module.order.entity.OrderDetailInfo">
+        update order_detail_info
+        <set>
+            <if test="revision != null">
+                revision = #{revision,jdbcType=INTEGER},
+            </if>
+            <if test="createdBy != null">
+                created_by = #{createdBy,jdbcType=VARCHAR},
+            </if>
+            <if test="createdTime != null">
+                created_time = #{createdTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy,jdbcType=VARCHAR},
+            </if>
+            <if test="updatedTime != null">
+                updated_time = #{updatedTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="orderId != null">
+                order_id = #{orderId,jdbcType=VARCHAR},
+            </if>
+            <if test="orderNo != null">
+                order_no = #{orderNo,jdbcType=VARCHAR},
+            </if>
+            <if test="itemId != null">
+                item_id = #{itemId,jdbcType=VARCHAR},
+            </if>
+            <if test="itemName != null">
+                item_name = #{itemName,jdbcType=VARCHAR},
+            </if>
+            <if test="itemImg != null">
+                item_img = #{itemImg,jdbcType=VARCHAR},
+            </if>
+            <if test="itemStatus != null">
+                item_status = #{itemStatus,jdbcType=CHAR},
+            </if>
+            <if test="itemNum != null">
+                num = #{itemNum,jdbcType=INTEGER},
+            </if>
+            <if test="itemPrice != null">
+                price = #{itemPrice,jdbcType=DECIMAL},
+            </if>
+
+            <if test="priceTotal != null">
+                price_total = #{priceTotal,jdbcType=DECIMAL},
+            </if>
+            <if test="cId != null">
+                c_id = #{cId,jdbcType=VARCHAR},
+            </if>
+            <if test="cLoginName != null">
+                c_login_name = #{cLoginName,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where order_detail_id = #{orderDetailId,jdbcType=VARCHAR}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.shop.module.order.entity.OrderDetailInfo">
+        update order_detail_info
+        set revision     = #{revision,jdbcType=INTEGER},
+            created_by   = #{createdBy,jdbcType=VARCHAR},
+            created_time = #{createdTime,jdbcType=TIMESTAMP},
+            updated_by   = #{updatedBy,jdbcType=VARCHAR},
+            updated_time = #{updatedTime,jdbcType=TIMESTAMP},
+            order_id     = #{orderId,jdbcType=VARCHAR},
+            order_no     = #{orderNo,jdbcType=VARCHAR},
+            item_id      = #{itemId,jdbcType=VARCHAR},
+            item_name    = #{itemName,jdbcType=VARCHAR},
+            item_img     = #{itemImg,jdbcType=VARCHAR},
+            item_status  = #{itemStatus,jdbcType=CHAR},
+            num          = #{itemNum,jdbcType=INTEGER},
+            price        = #{itemPrice,jdbcType=DECIMAL},
+            price_total  = #{priceTotal,jdbcType=DECIMAL},
+            c_id         = #{cId,jdbcType=VARCHAR},
+            c_login_name = #{cLoginName,jdbcType=VARCHAR}
+        where order_detail_id = #{orderDetailId,jdbcType=VARCHAR}
+    </update>
+</mapper>
