@@ -1,2 +1,6 @@
 # vue-shop
-yarn run serve
+#### 安装依赖包
+yarn
+#### 运行项目
+cd vue-shop
+yarn serve
